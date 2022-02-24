@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- panoptic -->
+    <node name="panoptic_node" pkg="panoptic_ros" type="panoptic_node.py" output="screen">
+        <param name="~input" value="/cam03/image_raw" />
+        <param name="~visualization" value="true" />
+        <!-- skip how many frames per processing -->
+        <param name="~skip_frame" value="0" /> 
+        <param name="~root_path" value="$(find panoptic_ros)/" /> 
+    </node> 
+
+
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find panoptic_ros)/rviz/panoptic_ros.rviz" /> -->
+</launch>

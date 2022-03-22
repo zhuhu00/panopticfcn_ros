@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<launch>
+
+    <!-- input topics -->
+    <arg name="rgb_raw_topic" default="/camera/rgb/image_color" />
+    <arg name="depth_raw_topic" default="/camera/depth/image" />
+    <arg name="camera_info_topic" default="/camera/depth/camera_info" />
+
+    <!-- Visualization ===Save image -->
+    <param name="visualize_raw" type="bool" value="false"/>
+    <param name="visualize_depth" type="bool" value="false"/>
+    <param name="visualize_panoptic" type="bool" value="false"/>
+    <arg name="save_img" default="true" />
+    <arg name="output_folder" default="$(find panoptic_ros)/output/panoptic" />
+
+    <!-- output topics -->
+    <arg name="output_rgb_topic" default="/panoptic/rgb_image" />
+    <arg name="output_depth_topic" default="/panoptic/depth_image" />
+    <arg name="output_camera_info_topic" default="/panoptic/camera_info" />
+    <arg name="output_pano_seg_topic" default="/panoptic/seg" />
+    <!-- <arg name="output_point_cloud_seg_topic" default="/perception/seg_point_cloud" /> -->
+
+
+    <!-- panoptic node-->
+    <node name="panoptic_node" pkg="panoptic_ros" type="panoptic_node_info.py" output="screen">
+        <remap from="/camera/rgb/image_raw" to="$(arg rgb_raw_topic)"/>
+        <remap from="/camera/depth/image_raw" to="$(arg depth_raw_topic)"/>
+        <remap from="/camera/rgb/camera_info" to="$(arg camera_info_topic)"/>
+
+
+        <remap from="/perception/rgb_image" to="$(arg output_rgb_topic)"/>
+        <remap from="/perception/depth_image" to="$(arg output_depth_topic)"/>
+        <remap from="/perception/camera_info" to="$(arg output_camera_info_topic)"/>
+        <remap from="/perception/seg" to="$(arg output_pano_seg_topic)"/>
+
+        <!-- configs===from yaml file -->
+        <rosparam file="$(find panoptic_ros)/config/panoptic-demo.yaml"/>
+        <param name="~visualization" value="true" />
+        <!-- skip how many frames per processing -->
+        <!-- <param name="~skip_frame" value="0" />  -->
+        <param name="~root_path" value="$(find panoptic_ros)/" /> 
+    </node> 
+
+
+    <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find panoptic_ros)/rviz/panoptic_ros.rviz" /> -->
+</launch>

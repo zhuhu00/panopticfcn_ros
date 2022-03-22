@@ -1,0 +1,61 @@
+<launch>
+    
+    <arg name="output_folder" default="$(find panoptic_ros)/output/test_office_pc" />
+    <arg name="flip_depth" default="false" />  <!--depth rendered by vrep(coppeliasim) is flipped-->>
+    <arg name="pub_point_cloud_seg" default="true" />   
+    <!-- <arg name="camera_frame" default="camera_link" />   -->
+    <arg name="camera_frame" default="kinect" />  
+    <arg name="use_GT_mapping" default="false" /> 
+    <arg name="save_img" default="true" /> 
+
+    <arg name="enable_detectron" default="true" />
+    <arg name="detectron_model" default="Pano_seg" />
+    <!-- <arg name="detectron_model" default="Inst_seg" /> -->
+
+    <!-- input topics -->
+    <arg name="rgb_raw_topic" default="/rgb/image_raw" />
+    <arg name="depth_raw_topic" default="/depth_to_rgb/image_raw" />
+    <arg name="camera_info_topic" default="/rgb/camera_info" />
+
+    <!-- output topics -->
+    <arg name="output_rgb_topic" default="/perception/rgb_image" />
+    <arg name="output_depth_topic" default="/perception/depth_image" />
+    <arg name="output_camera_info_topic" default="/perception/camera_info" />
+    <arg name="output_pano_seg_topic" default="/perception/seg" />
+    <arg name="output_point_cloud_seg_topic" default="/perception/seg_point_cloud" />
+
+    <!-- launch node for image processing & panoptic segmentation -->
+    <node name="robot_perception_node" pkg="panoptic_ros" type="perception_node.py" output="screen">
+        <remap from="/camera/rgb/image_raw" to="$(arg rgb_raw_topic)"/>
+        <remap from="/camera/depth/image_raw" to="$(arg depth_raw_topic)"/>
+        <remap from="/camera/rgb/camera_info" to="$(arg camera_info_topic)"/>
+
+        <remap from="/perception/rgb_image" to="$(arg output_rgb_topic)"/>
+        <remap from="/perception/depth_image" to="$(arg output_depth_topic)"/>
+        <remap from="/perception/camera_info" to="$(arg output_camera_info_topic)"/>
+        <remap from="/perception/seg" to="$(arg output_pano_seg_topic)"/>
+
+        <param name="flip_depth" type="bool" value="$(arg flip_depth)"/>
+        <param name="visualize_geo_seg" type="bool" value="false"/>
+
+        <param name="enable_detectron" type="bool" value="$(arg enable_detectron)" />
+        <param name="detectron_ip" type="str" value="0.0.0.0"/>
+        <param name="detectron_port" type="int" value="8801"/>
+        <param name="detectron_model" type="str" value="$(arg detectron_model)"/>
+    </node>
+
+    <!-- launch node for depth segmentation & per-frame segment generation -->
+    <!-- <node name="pc_seg_generator_node" pkg="perception_ros" type="pc_seg_generator_node" output="screen" if="$(arg pub_point_cloud_seg)">
+        <rosparam command="load" file="$(find perception_ros)/cfg/seg_param.yaml" />
+        <rosparam command="load" file="$(find perception_ros)/cfg/pc_gen_param.yaml" />
+        <rosparam command="load" file="$(find perception_ros)/cfg/pano_class.yaml" />
+
+        <remap from="/perception/rgb_image" to="$(arg output_rgb_topic)"/>
+        <remap from="/perception/depth_image" to="$(arg output_depth_topic)"/>
+        <remap from="/perception/seg" to="$(arg output_pano_seg_topic)"/>
+        <param name="output_folder" type="string" value="$(arg output_folder)" />
+        <param name="use_GT_camera_frame" type="bool" value="$(arg use_GT_mapping)" />
+        <param name="camera_frame" type="string" value="$(arg camera_frame)" />
+        <param name="save_img" type="bool" value="$(arg save_img)" />
+    </node>
+</launch> -->

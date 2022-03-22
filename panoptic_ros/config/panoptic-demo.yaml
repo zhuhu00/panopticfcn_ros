@@ -1,0 +1,5 @@
+# panopticFCN param
+MODEL_PATH: /home/roma/dev/catkin_panoptic/src/panoptic_ros/panoptic_ros/weights/panoptic_fcn_r50_512_3x.pth
+
+skip_frames: 0
+filp_depth: false

@@ -1,19 +1,21 @@
 # Copyright (c) Facebook, Inc. and its affiliates.
 import atexit
 import bisect
+import imp
 import multiprocessing as mp
 from collections import deque
 import cv2
 import torch
+import numpy as np
 
 from detectron2.data import MetadataCatalog
 from detectron2.engine.defaults import DefaultPredictor
 from detectron2.utils.video_visualizer import VideoVisualizer
 from detectron2.utils.visualizer import ColorMode, Visualizer
 
-
+# ColorMode.SEGMENTATION还可以换成IMAGE，
 class VisualizationDemo(object):
-    def __init__(self, cfg, instance_mode=ColorMode.IMAGE, parallel=False):
+    def __init__(self, cfg, instance_mode=ColorMode.SEGMENTATION, parallel=False):
         """
         Args:
             cfg (CfgNode):
@@ -25,14 +27,19 @@ class VisualizationDemo(object):
             cfg.DATASETS.TEST[0] if len(cfg.DATASETS.TEST) else "__unused"
         )
         self.cpu_device = torch.device("cpu")
+        # self.cpu_device = torch.device("cuda")
         self.instance_mode = instance_mode
-
+        
         self.parallel = parallel
         if parallel:
             num_gpu = torch.cuda.device_count()
             self.predictor = AsyncPredictor(cfg, num_gpus=num_gpu)
         else:
             self.predictor = DefaultPredictor(cfg)
+
+    def run_predictor(self, image):
+        predictions = self.predictor(image)
+        return predictions
 
     def run_on_image(self, image):
         """
@@ -51,9 +58,7 @@ class VisualizationDemo(object):
         visualizer = Visualizer(image, self.metadata, instance_mode=self.instance_mode)
         if "panoptic_seg" in predictions:
             panoptic_seg, segments_info = predictions["panoptic_seg"]
-            vis_output = visualizer.draw_panoptic_seg_predictions(
-                panoptic_seg.to(self.cpu_device), segments_info
-            )
+            vis_output = visualizer.draw_panoptic_seg_predictions(panoptic_seg.to(self.cpu_device), segments_info)
         else:
             if "sem_seg" in predictions:
                 vis_output = visualizer.draw_sem_seg(
@@ -64,6 +69,32 @@ class VisualizationDemo(object):
                 vis_output = visualizer.draw_instance_predictions(predictions=instances)
 
         return predictions, vis_output
+
+    def run_on_image_mask(self, image):
+        vis_outputwithmask = None
+        vis_outputorigin = None
+        predictions = self.predictor(image)
+        seg_map = predictions["seg_map"]
+        info  = predictions["info"]
+        boxes = predictions["boxes"]
+        boxes = np.reshape(boxes, len(boxes)*4)
+        obj_id = []
+        sem_id = []
+        scores = []
+        area = []
+        obj_category = []
+        sem_category = []
+        for i in range(len(info)):
+            info_current = info[i]
+            if info_current["isthing"]:
+                scores.append(info_current["score"])
+                obj_category.append(info_current["category_id"])
+                obj_id.append(info_current["id"])  
+            else:
+                area.append(info_current["area"])
+                sem_category.append(info_current["category_id"]+80) # start from 81, no class 80
+                sem_id.append(info_current["id"])
+
 
     def _frame_from_video(self, video):
         while video.isOpened():
@@ -218,3 +249,6 @@ class AsyncPredictor:
     @property
     def default_buffer_size(self):
         return len(self.procs) * 5
+
+
+

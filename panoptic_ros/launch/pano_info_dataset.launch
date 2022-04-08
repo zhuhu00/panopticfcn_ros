@@ -18,7 +18,6 @@
     <arg name="output_depth_topic" default="/panoptic/depth_image" />
     <arg name="output_camera_info_topic" default="/panoptic/camera_info" />
     <arg name="output_pano_seg_topic" default="/panoptic/seg" />
-    <!-- <arg name="output_point_cloud_seg_topic" default="/perception/seg_point_cloud" /> -->
 
 
     <!-- panoptic node-->
@@ -28,10 +27,10 @@
         <remap from="/camera/rgb/camera_info" to="$(arg camera_info_topic)"/>
 
 
-        <remap from="/perception/rgb_image" to="$(arg output_rgb_topic)"/>
-        <remap from="/perception/depth_image" to="$(arg output_depth_topic)"/>
-        <remap from="/perception/camera_info" to="$(arg output_camera_info_topic)"/>
-        <remap from="/perception/seg" to="$(arg output_pano_seg_topic)"/>
+        <remap from="/panoptic/rgb_image" to="$(arg output_rgb_topic)"/>
+        <remap from="/panoptic/depth_image" to="$(arg output_depth_topic)"/>
+        <remap from="/panoptic/camera_info" to="$(arg output_camera_info_topic)"/>
+        <remap from="/panoptic/seg" to="$(arg output_pano_seg_topic)"/>
 
         <!-- configs===from yaml file -->
         <rosparam file="$(find panoptic_ros)/config/panoptic-demo.yaml"/>

@@ -1,0 +1,14 @@
+use_semantic_segmentation: true
+use_geometric_segmentation: true
+
+use_distance_check: true
+use_direct_fusion: true
+
+geo_seg_mode: 1 # 0 for depth and 1 for point cloud (always use 0 to get a good result)
+# 使用depth的块状更明显，但是使用point会得到比较好的效果，在语义重建上，但是需要翻转图片
+visualize_geo_seg: true
+visualize_pano_seg: true
+visualize_fusion_seg: true
+visualize_rgb_raw: true
+
+pub_seg_img: true

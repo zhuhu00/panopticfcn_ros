@@ -1,0 +1,30 @@
+<launch>
+    
+    <arg name="output_folder" default="$(find segment_ros)/output/kinect_test" />
+    <arg name="pub_point_cloud_seg" default="true" />   
+    <arg name="camera_frame" default="kinect" />  
+    <arg name="use_GT_mapping" default="false" /> 
+    <arg name="save_img" default="false" /> 
+
+    <!-- ROS topics -->
+    <arg name="output_rgb_topic" default="/perception/rgb_image" />
+    <arg name="output_depth_topic" default="/perception/depth_image" />
+    <arg name="output_camera_info_topic" default="/perception/camera_info" />
+    <arg name="output_pano_seg_topic" default="/perception/seg" />
+    <arg name="output_point_cloud_seg_topic" default="/perception/seg_point_cloud" />
+
+    <!-- launch node for depth segmentation & per-frame segment generation -->
+    <node name="pc_seg_generator_node" pkg="segment_ros" type="pc_seg_generator_node" output="screen" if="$(arg pub_point_cloud_seg)">
+        <rosparam command="load" file="$(find segment_ros)/config/seg_param.yaml" />
+        <rosparam command="load" file="$(find segment_ros)/config/pc_gen_param.yaml" />
+        <rosparam command="load" file="$(find segment_ros)/config/pano_class.yaml" />
+
+        <remap from="/perception/rgb_image" to="$(arg output_rgb_topic)"/>
+        <remap from="/perception/depth_image" to="$(arg output_depth_topic)"/>
+        <remap from="/perception/seg" to="$(arg output_pano_seg_topic)"/>
+        <param name="output_folder" type="string" value="$(arg output_folder)" />
+        <param name="use_GT_camera_frame" type="bool" value="$(arg use_GT_mapping)" />
+        <param name="camera_frame" type="string" value="$(arg camera_frame)" />
+        <param name="save_img" type="bool" value="$(arg save_img)" />
+    </node>
+</launch>

@@ -1,4 +1,7 @@
 - git:
+    local-name: catkin_simple
+    uri: https://github.com/catkin/catkin_simple.git
+- git:
     local-name: pcl_catkin
     uri: https://github.com/TooSchoolForCool/Robot-Vision-Catkin-Deps.git
     version: pcl_catkin
